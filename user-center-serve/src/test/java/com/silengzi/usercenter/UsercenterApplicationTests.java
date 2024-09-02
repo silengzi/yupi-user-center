@@ -2,6 +2,7 @@ package com.silengzi.usercenter;
 
 import com.silengzi.usercenter.mapper.UsersMapper;
 import com.silengzi.usercenter.model.domain.Users;
+import com.silengzi.usercenter.service.UserService;
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -15,6 +16,9 @@ class UsercenterApplicationTests {
     @Resource
     private UsersMapper usersMapper;
 
+    @Resource
+    private UserService userService;
+
     @Test
     void contextLoads() {
     }
@@ -25,6 +29,12 @@ class UsercenterApplicationTests {
         List<Users> userList = usersMapper.selectList(null);
         Assert.assertEquals(5, userList.size());
         userList.forEach(System.out::println);
+    }
+
+    @Test
+    void testRegister() {
+        long userId = userService.UserRegister("silengzi", "12345678", "12345678", "1001");
+        Assert.assertEquals(1, userId);
     }
 
 }
