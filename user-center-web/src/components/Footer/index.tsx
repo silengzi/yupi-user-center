@@ -5,6 +5,13 @@ const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear();
   return (
     <DefaultFooter
+      style={{
+        background: 'none',
+        position: 'fixed',
+        zIndex: 11,
+        bottom: 0,
+        width: '100%'
+      }}
       copyright={`${currentYear} ${defaultMessage}`}
       links={[
         {
@@ -16,7 +23,7 @@ const Footer: React.FC = () => {
         {
           key: 'github',
           title: <GithubOutlined />,
-          href: 'https://github.com/ant-design/ant-design-pro',
+          href: 'https://github.com/silengzi',
           blankTarget: true,
         },
         {

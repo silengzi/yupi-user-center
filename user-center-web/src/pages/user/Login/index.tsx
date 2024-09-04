@@ -73,23 +73,44 @@ const Login: React.FC = () => {
     }
   };
   const { status, type: loginType } = userLoginState;
+  const submitText = {
+    account: '登录',
+    register: '注册',
+  };
+
+  const backgroundVideoUrl = 'https://gw.alipayobjects.com/v/huamei_gcee1x/afts/video/jXRBRK_VAwoAAAAAAAAAAAAAK4eUAQBr'
+
   return (
-    <div className={styles.container}>
-      <div className={styles.content}>
+    <div
+      className={styles.container}
+    >
+      <div
+        className={styles.content}
+        style={{
+          position: 'absolute',
+          zIndex: 11,
+          width: '100%'
+        }}
+      >
         <LoginForm
           logo={<img alt="logo" src="/logo.svg" />}
+          // backgroundImageUrl="https://mdn.alipayobjects.com/huamei_gcee1x/afts/img/A*y0ZTS6WLwvgAAAAAAAAAAAAADml6AQ/fmt.webp"
+          // backgroundVideoUrl="https://gw.alipayobjects.com/v/huamei_gcee1x/afts/video/jXRBRK_VAwoAAAAAAAAAAAAAK4eUAQBr"
           title="用户管理中心"
           subTitle={'Ant Design 是西湖区最具影响力的 Web 设计规范'}
           initialValues={{
             autoLogin: true,
           }}
-          actions={<a>跳转支付宝登录</a>}
+          submitter={{ searchConfig: { submitText: submitText[type as keyof typeof submitText] } }}
+          // actions={<a>跳转支付宝登录</a>}
+
           /* actions={[
             '其他登录方式 :',
             <AlipayCircleOutlined key="AlipayCircleOutlined" className={styles.icon} />,
             <TaobaoCircleOutlined key="TaobaoCircleOutlined" className={styles.icon} />,
             <WeiboCircleOutlined key="WeiboCircleOutlined" className={styles.icon} />,
           ]} */
+
           onFinish={async (values) => {
             await handleSubmit(values as API.LoginParams);
           }}
@@ -100,7 +121,7 @@ const Login: React.FC = () => {
           </Tabs>
 
           {status === 'error' && loginType === 'account' && (
-            <LoginMessage content={'错误的用户名和密码(admin/ant.design)'} />
+            <LoginMessage content={'错误的用户名和密码'} />
           )}
           {type === 'account' && (
             <>
@@ -136,7 +157,7 @@ const Login: React.FC = () => {
           )}
 
           {status === 'error' && loginType === 'register' && 
-            <LoginMessage content={'错误的用户名和密码(admin/ant.design)'} />
+            <LoginMessage content={'错误的用户名和密码'} />
           }
           {type === 'register' && (
             <>
@@ -146,7 +167,7 @@ const Login: React.FC = () => {
                   size: 'large',
                   prefix: <UserOutlined className={styles.prefixIcon} />,
                 }}
-                placeholder={'用户名: admin or user'}
+                placeholder={'用户名'}
                 rules={[
                   {
                     required: true,
@@ -160,7 +181,7 @@ const Login: React.FC = () => {
                   size: 'large',
                   prefix: <LockOutlined className={styles.prefixIcon} />,
                 }}
-                placeholder={'密码: ant.design'}
+                placeholder={'密码'}
                 rules={[
                   {
                     required: true,
@@ -169,12 +190,12 @@ const Login: React.FC = () => {
                 ]}
               />
               <ProFormText.Password
-                name="password"
+                name="checkPassword"
                 fieldProps={{
                   size: 'large',
                   prefix: <LockOutlined className={styles.prefixIcon} />,
                 }}
-                placeholder={'校验密码: ant.design'}
+                placeholder={'校验密码'}
                 rules={[
                   {
                     required: true,
@@ -188,6 +209,8 @@ const Login: React.FC = () => {
           <div
             style={{
               marginBottom: 24,
+              display: type === 'account' ? 'block' : 'none',
+
             }}
           >
             <ProFormCheckbox noStyle name="autoLogin">
@@ -203,7 +226,50 @@ const Login: React.FC = () => {
           </div>
         </LoginForm>
       </div>
+
       <Footer />
+
+      {/* 背景视频及蒙版 */}
+      <div
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          overflow: 'hidden',
+          height: '100%',
+          zIndex: 1,
+          pointerEvents: 'none',
+        }}
+      >
+        {/* 浅色蒙版 */}
+        <div
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            backgroundColor: 'rgba(255, 255, 255, 0.3)', /* 浅色（白色）半透明蒙版 */
+            zIndex: 2, /* 位于视频上方，内容下方 */
+          }}
+        ></div>
+
+        <video
+          src={backgroundVideoUrl}
+          controls={false}
+          autoPlay
+          playsInline
+          loop
+          muted={true}
+          crossOrigin="anonymous"
+          style={{
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+          }}
+        />
+      </div>
     </div>
   );
 };
