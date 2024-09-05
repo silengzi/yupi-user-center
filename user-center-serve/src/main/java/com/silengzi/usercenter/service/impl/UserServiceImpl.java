@@ -67,7 +67,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         // 插入数据
         User user = new User();
         user.setUserAccount(userAccount);
-        user.setUserPassword(userPassword);
+        user.setUserPassword(encryptPassword);
         boolean saveResult = this.save(user);
         if(!saveResult) {
             return -1;
@@ -78,6 +78,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Override
     public User UserLogin(String userAccount, String userPassword, HttpServletRequest request) {
+        if(StringUtils.isAnyBlank(userAccount, userPassword)) {
+            return null;
+        }
         return null;
     }
 }

@@ -11,17 +11,17 @@ public class UserRegisterRequest implements Serializable {
     /**
      * 用户账号
      */
-    private String UserAccount;
+    private String userAccount;
 
     /**
      * 用户密码
      */
-    private String UserPassword;
+    private String userPassword;
 
     /**
      * 校验密码
      */
-    private String CheckPassword;
+    private String checkPassword;
 
     /**
      * 星球编号
