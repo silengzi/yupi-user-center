@@ -1,6 +1,7 @@
 import Footer from '@/components/Footer';
-import { login } from '@/services/ant-design-pro/api';
+import { login, register } from '@/services/ant-design-pro/api';
 import { getFakeCaptcha } from '@/services/ant-design-pro/login';
+import type { FormInstance } from 'antd';  // 导入 FormInstance 类型
 import {
   AlipayCircleOutlined,
   LockOutlined,
@@ -16,7 +17,7 @@ import {
   ProFormText,
 } from '@ant-design/pro-components';
 import { Alert, message, Tabs } from 'antd';
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { history, useModel } from 'umi';
 import styles from './index.less';
 const LoginMessage: React.FC<{
@@ -35,6 +36,11 @@ const Login: React.FC = () => {
   const [userLoginState, setUserLoginState] = useState<API.LoginResult>({});
   const [type, setType] = useState<string>('account');
   const { initialState, setInitialState } = useModel('@@initialState');
+
+  const formRef = useRef<FormInstance | null>(null); // 使用 useRef 创建一个 form 引用
+  const handleReset = () => {
+    formRef.current?.resetFields(); // 使用 formRef 调用 resetFields 方法重置表单
+  };
   const fetchUserInfo = async () => {
     const userInfo = await initialState?.fetchUserInfo?.();
     if (userInfo) {
@@ -44,17 +50,18 @@ const Login: React.FC = () => {
       }));
     }
   };
-  const handleSubmit = async (values: API.LoginParams) => {
+
+  // 调用登录接口
+  const handleLogin = async (values: API.LoginParams) => {
     try {
       // 登录
       const msg = await login({
-        ...values,
-        type,
+        ...values
       });
       if (msg.status === 'ok') {
         const defaultLoginSuccessMessage = '登录成功！';
         message.success(defaultLoginSuccessMessage);
-        await fetchUserInfo();
+        await fetchUserInfo(); // 获取用户信息
         /** 此方法会跳转到 redirect 参数所在的位置 */
         if (!history) return;
         const { query } = history.location;
@@ -64,14 +71,54 @@ const Login: React.FC = () => {
         history.push(redirect || '/');
         return;
       }
-      console.log(msg);
       // 如果失败去设置用户错误信息
       setUserLoginState(msg);
     } catch (error) {
       const defaultLoginFailureMessage = '登录失败，请重试！';
       message.error(defaultLoginFailureMessage);
     }
+  }
+  
+  // 调用注册接口
+  const handleRegister = async (values: API.RegisterParams) => {
+    try {
+      // 注册
+      const result = await register({
+        ...values
+      });
+      // if (result.status === 'ok') {
+      if (result > 0) {
+        const defaultLoginSuccessMessage = '注册成功！请登录！';
+        message.success(defaultLoginSuccessMessage);
+        handleReset()
+        setType('account')
+        // await fetchUserInfo();
+        // /** 此方法会跳转到 redirect 参数所在的位置 */
+        // if (!history) return;
+        // const { query } = history.location;
+        // const { redirect } = query as {
+        //   redirect: string;
+        // };
+        // history.push(redirect || '/');
+        return;
+      }
+      // console.log(result);
+      // 如果失败去设置用户错误信息
+      // setUserLoginState(result);
+    } catch (error) {
+      const defaultLoginFailureMessage = '注册失败，请重试！';
+      message.error(defaultLoginFailureMessage);
+    }
+  }
+
+  const handleSubmit = (values: API.LoginParams | API.RegisterParams) => {
+    if(type === 'account') {
+      handleLogin(values as API.LoginParams)
+    } else {
+      handleRegister(values as API.RegisterParams)
+    }
   };
+
   const { status, type: loginType } = userLoginState;
   const submitText = {
     account: '登录',
@@ -89,10 +136,13 @@ const Login: React.FC = () => {
         style={{
           position: 'absolute',
           zIndex: 11,
-          width: '100%'
+          width: '100%',
+          top: '40%',
+          transform: 'translate(0, -50%)'
         }}
       >
         <LoginForm
+          formRef={formRef}  // 将 formRef 传递给 LoginForm 的 formRef 属性
           logo={<img alt="logo" src="/logo.svg" />}
           // backgroundImageUrl="https://mdn.alipayobjects.com/huamei_gcee1x/afts/img/A*y0ZTS6WLwvgAAAAAAAAAAAAADml6AQ/fmt.webp"
           // backgroundVideoUrl="https://gw.alipayobjects.com/v/huamei_gcee1x/afts/video/jXRBRK_VAwoAAAAAAAAAAAAAK4eUAQBr"
@@ -111,8 +161,8 @@ const Login: React.FC = () => {
             <WeiboCircleOutlined key="WeiboCircleOutlined" className={styles.icon} />,
           ]} */
 
-          onFinish={async (values) => {
-            await handleSubmit(values as API.LoginParams);
+          onFinish={async (values: API.LoginParams | API.RegisterParams) => {
+            await handleSubmit(values);
           }}
         >
           <Tabs activeKey={type} onChange={setType}>
@@ -131,7 +181,7 @@ const Login: React.FC = () => {
                   size: 'large',
                   prefix: <UserOutlined className={styles.prefixIcon} />,
                 }}
-                placeholder={'用户名: admin or user'}
+                placeholder={'请输入用户名'}
                 rules={[
                   {
                     required: true,
@@ -144,8 +194,9 @@ const Login: React.FC = () => {
                 fieldProps={{
                   size: 'large',
                   prefix: <LockOutlined className={styles.prefixIcon} />,
+                  autoComplete: 'new-password',  // 禁用自动填充
                 }}
-                placeholder={'密码: ant.design'}
+                placeholder={'请输入密码'}
                 rules={[
                   {
                     required: true,
@@ -162,12 +213,12 @@ const Login: React.FC = () => {
           {type === 'register' && (
             <>
               <ProFormText
-                name="username"
+                name="userAccount"
                 fieldProps={{
                   size: 'large',
                   prefix: <UserOutlined className={styles.prefixIcon} />,
                 }}
-                placeholder={'用户名'}
+                placeholder={'请输入用户名'}
                 rules={[
                   {
                     required: true,
@@ -176,12 +227,13 @@ const Login: React.FC = () => {
                 ]}
               />
               <ProFormText.Password
-                name="password"
+                name="userPassword"
                 fieldProps={{
                   size: 'large',
                   prefix: <LockOutlined className={styles.prefixIcon} />,
+                  autoComplete: 'new-password',  // 禁用自动填充
                 }}
-                placeholder={'密码'}
+                placeholder={'请输入密码'}
                 rules={[
                   {
                     required: true,
@@ -195,7 +247,7 @@ const Login: React.FC = () => {
                   size: 'large',
                   prefix: <LockOutlined className={styles.prefixIcon} />,
                 }}
-                placeholder={'校验密码'}
+                placeholder={'请再次校验密码'}
                 rules={[
                   {
                     required: true,
@@ -252,6 +304,7 @@ const Login: React.FC = () => {
             height: '100%',
             backgroundColor: 'rgba(255, 255, 255, 0.3)', /* 浅色（白色）半透明蒙版 */
             zIndex: 2, /* 位于视频上方，内容下方 */
+            display: 'none'
           }}
         ></div>
 

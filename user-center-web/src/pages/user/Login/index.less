@@ -21,6 +21,24 @@
 .content {
   flex: 1;
   padding: 32px 0;
+
+  &::after {
+    content: '';
+    display: block;
+    height: 100%;
+    clear: both;
+    overflow: hidden;
+    box-sizing: border-box;
+    width: 410px;
+    background-color: #fff;
+    position: absolute;
+    left: 50%;
+    top: 0;
+    z-index: -1;
+    transform: translate(-50%, 0);
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 1);
+  }
 }
 
 @media (min-width: @screen-md-min) {

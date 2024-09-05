@@ -28,6 +28,12 @@ declare namespace API {
     type?: string;
     currentAuthority?: string;
   };
+  
+  type RegisterResult = {
+    status?: string;
+    type?: string;
+    currentAuthority?: string;
+  };
 
   type PageParams = {
     current?: number;
@@ -66,6 +72,12 @@ declare namespace API {
     password?: string;
     autoLogin?: boolean;
     type?: string;
+  };
+
+  type RegisterParams = {
+    userAccount?: string;
+    userPassword?: string;
+    checkPassword?: string;
   };
 
   type ErrorResponse = {
