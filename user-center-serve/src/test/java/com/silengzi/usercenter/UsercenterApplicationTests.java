@@ -33,7 +33,7 @@ class UsercenterApplicationTests {
 
     @Test
     void testRegister() {
-        long userId = userService.UserRegister("silengzi", "12345678", "12345678", "1001");
+        long userId = userService.userRegister("silengzi", "12345678", "12345678", "1001");
         Assert.assertEquals(1, userId);
     }
 

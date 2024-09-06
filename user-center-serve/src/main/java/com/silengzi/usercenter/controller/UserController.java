@@ -1,13 +1,14 @@
 package com.silengzi.usercenter.controller;
 
 import com.silengzi.usercenter.model.domain.User;
+import com.silengzi.usercenter.model.request.UserLoginRequest;
 import com.silengzi.usercenter.model.request.UserRegisterRequest;
 import com.silengzi.usercenter.service.UserService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import java.util.List;
+import javax.servlet.http.HttpServletRequest;
 
 @RestController
 @RequestMapping("/user")
@@ -35,7 +36,23 @@ public class UserController {
             return -1;
         }
 
-        long result = userService.UserRegister(userAccount, userPassword, checkPassword, "100001");
+        long result = userService.userRegister(userAccount, userPassword, checkPassword, "100001");
         return result;
+    }
+
+    @PostMapping("/login")
+    public User login(@RequestBody UserLoginRequest userLoginRequest, HttpServletRequest request) {
+        if(userLoginRequest == null) {
+            return null;
+        }
+
+        String userAccount = userLoginRequest.getUserAccount();
+        String userPassword = userLoginRequest.getUserPassword();
+        if(StringUtils.isAnyBlank(userAccount, userPassword)) {
+            return null;
+        }
+
+        User user = userService.userLogin(userAccount, userPassword, request);
+        return user;
     }
 }

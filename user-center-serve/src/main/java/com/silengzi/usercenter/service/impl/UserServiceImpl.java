@@ -1,4 +1,5 @@
 package com.silengzi.usercenter.service.impl;
+import java.util.Date;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -26,7 +27,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     private static final String SALT = "silengzi";
 
     @Override
-    public long UserRegister(String userAccount, String userPassword, String checkPassword, String planetCode) {
+    public long userRegister(String userAccount, String userPassword, String checkPassword, String planetCode) {
         // 校验参数是否非空
         if (StringUtils.isAnyBlank(userAccount, userPassword, checkPassword, planetCode)) {
             return -1;
@@ -77,11 +78,70 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     @Override
-    public User UserLogin(String userAccount, String userPassword, HttpServletRequest request) {
+    public User userLogin(String userAccount, String userPassword, HttpServletRequest request) {
+        // 1. 校验
+        // 校验参数是否为空
         if(StringUtils.isAnyBlank(userAccount, userPassword)) {
             return null;
         }
-        return null;
+
+        // 账号长度不能小于四位
+        if(userAccount.length() < 4) {
+            return null;
+        }
+
+        // 密码长度不能小于8位
+        if(userPassword.length() < 8) {
+            return null;
+        }
+
+        // 账户不能包含特殊字符
+        String validPattern = "[`~!@#$%^&*()+=|{}':;',\\\\[\\\\].<>/?~！@#￥%……&*（）——+|{}【】‘；：”“’。，、？]";
+        Matcher matcher = Pattern.compile(validPattern).matcher(userAccount);
+        if (matcher.find()) {
+            return null;
+        }
+
+        // 2. 加密
+        String encryptPassword = DigestUtils.md5DigestAsHex((SALT + userPassword).getBytes());
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("userAccount", userAccount);
+        queryWrapper.eq("userPassword", encryptPassword);
+        User user = userMapper.selectOne(queryWrapper);
+        // 如果账号或密码不匹配
+        if(user == null) {
+            return null;
+        }
+
+        // 3. 用户信息脱敏
+        User safetyUser = getSafetyUser(user);
+
+        // 4. 记录用户的登录态
+        request.getSession().setAttribute("userLoginState", safetyUser);
+
+        return safetyUser;
+    }
+
+    @Override
+    public User getSafetyUser(User originUser) {
+        if(originUser == null) {
+            return null;
+        }
+
+        User safetyUser = new User();
+        safetyUser.setId(originUser.getId());
+        safetyUser.setUsername(originUser.getUsername());
+        safetyUser.setUserAccount(originUser.getUserAccount());
+        safetyUser.setAvatarUrl(originUser.getAvatarUrl());
+        safetyUser.setGender(originUser.getGender());
+        safetyUser.setPhone(originUser.getPhone());
+        safetyUser.setEmail(originUser.getEmail());
+        safetyUser.setUserStatus(originUser.getUserStatus());
+        safetyUser.setCreateTime(originUser.getCreateTime());
+        safetyUser.setUserRole(originUser.getUserRole());
+        safetyUser.setPlanetCode(originUser.getPlanetCode());
+
+        return safetyUser;
     }
 }
 
