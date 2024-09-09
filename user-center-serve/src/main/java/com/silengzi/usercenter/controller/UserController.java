@@ -55,4 +55,17 @@ public class UserController {
         User user = userService.userLogin(userAccount, userPassword, request);
         return user;
     }
+
+    @GetMapping("/currentUser")
+    public User currentUser(HttpServletRequest request) {
+        Object obj = request.getSession().getAttribute("userLoginState");
+        User user = (User) obj;
+        if(user == null) {
+            return null;
+        }
+        long userId = user.getId();
+        User currentUser = userService.getById(userId);
+        User safetyUser = userService.getSafetyUser(currentUser);
+        return safetyUser;
+    }
 }

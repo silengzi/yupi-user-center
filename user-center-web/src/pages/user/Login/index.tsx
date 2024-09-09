@@ -55,10 +55,11 @@ const Login: React.FC = () => {
   const handleLogin = async (values: API.LoginParams) => {
     try {
       // 登录
-      const msg = await login({
+      const result = await login({
         ...values
       });
-      if (msg.status === 'ok') {
+      // if (result.status === 'ok') {
+      if (result) {
         const defaultLoginSuccessMessage = '登录成功！';
         message.success(defaultLoginSuccessMessage);
         await fetchUserInfo(); // 获取用户信息
@@ -72,7 +73,7 @@ const Login: React.FC = () => {
         return;
       }
       // 如果失败去设置用户错误信息
-      setUserLoginState(msg);
+      setUserLoginState(result);
     } catch (error) {
       const defaultLoginFailureMessage = '登录失败，请重试！';
       message.error(defaultLoginFailureMessage);
@@ -176,7 +177,7 @@ const Login: React.FC = () => {
           {type === 'account' && (
             <>
               <ProFormText
-                name="username"
+                name="userAccount"
                 fieldProps={{
                   size: 'large',
                   prefix: <UserOutlined className={styles.prefixIcon} />,
@@ -190,7 +191,7 @@ const Login: React.FC = () => {
                 ]}
               />
               <ProFormText.Password
-                name="password"
+                name="userPassword"
                 fieldProps={{
                   size: 'large',
                   prefix: <LockOutlined className={styles.prefixIcon} />,
