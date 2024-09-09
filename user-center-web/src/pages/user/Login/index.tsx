@@ -148,7 +148,7 @@ const Login: React.FC = () => {
           // backgroundImageUrl="https://mdn.alipayobjects.com/huamei_gcee1x/afts/img/A*y0ZTS6WLwvgAAAAAAAAAAAAADml6AQ/fmt.webp"
           // backgroundVideoUrl="https://gw.alipayobjects.com/v/huamei_gcee1x/afts/video/jXRBRK_VAwoAAAAAAAAAAAAAK4eUAQBr"
           title="用户管理中心"
-          subTitle={'Ant Design 是西湖区最具影响力的 Web 设计规范'}
+          subTitle={'一个经典美观的后台管理系统'}
           initialValues={{
             autoLogin: true,
           }}
