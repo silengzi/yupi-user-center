@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.silengzi.usercenter.model.domain.User;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
  *
@@ -45,4 +46,13 @@ public interface UserService extends IService<User> {
      * @return
      */
     int userLogout(HttpServletRequest request);
+
+    /**
+     * 查询用户列表
+     *
+     * @param username  用户名
+     * @param request
+     * @return  用户列表
+     */
+    List<User> userList(String username, HttpServletRequest request);
 }

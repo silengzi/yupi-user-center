@@ -12,6 +12,7 @@ import org.springframework.util.DigestUtils;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -181,8 +182,22 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         request.getSession().removeAttribute(USER_LOGIN_STATE);
         return 1;
     }
+
+    /**
+     * 查询用户列表
+     *
+     * @param username  用户名
+     * @param request
+     * @return
+     */
+    @Override
+    public List<User> userList(String username, HttpServletRequest request) {
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        if(StringUtils.isNotBlank(username)) {
+            queryWrapper.like("username", username);
+        }
+        List<User> userlist = this.list(queryWrapper);
+        
+        return null;
+    }
 }
-
-
-
-
