@@ -55,4 +55,13 @@ public interface UserService extends IService<User> {
      * @return  用户列表
      */
     List<User> userList(String username, HttpServletRequest request);
+
+    /**
+     * 删除用户
+     *
+     * @param id
+     * @param request
+     * @return
+     */
+    boolean deleteUser(long id, HttpServletRequest request);
 }

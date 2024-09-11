@@ -9,6 +9,7 @@ import com.silengzi.usercenter.service.UserService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -200,5 +201,21 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         List<User> userlist = this.list(queryWrapper);
         List<User> safetyUserList = userlist.stream().map(item -> getSafetyUser(item)).collect(Collectors.toList());
         return safetyUserList;
+    }
+
+    /**
+     * 删除用户
+     *
+     * @param id
+     * @param request
+     * @return
+     */
+    @Override
+    public boolean deleteUser(long id, HttpServletRequest request) {
+        if(id <= 0) {
+            return false;
+        }
+        boolean result = this.removeById(id);
+        return result;
     }
 }

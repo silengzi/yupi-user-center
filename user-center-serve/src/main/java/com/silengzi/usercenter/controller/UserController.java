@@ -1,6 +1,7 @@
 package com.silengzi.usercenter.controller;
 
 import com.silengzi.usercenter.model.domain.User;
+import com.silengzi.usercenter.model.request.UserDeleteRequest;
 import com.silengzi.usercenter.model.request.UserLoginRequest;
 import com.silengzi.usercenter.model.request.UserRegisterRequest;
 import com.silengzi.usercenter.service.UserService;
@@ -86,5 +87,15 @@ public class UserController {
         }
         List<User> userList = userService.userList(username, request);
         return userList;
+    }
+
+    @PostMapping("delete")
+    public boolean deleteUser(@RequestBody UserDeleteRequest userDeleteRequest, HttpServletRequest request) {
+        long id = userDeleteRequest.getId();
+        if(id <= 0) {
+            return false;
+        }
+
+        return userService.deleteUser(id, request);
     }
 }
