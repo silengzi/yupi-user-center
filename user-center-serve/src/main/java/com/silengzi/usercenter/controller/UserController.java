@@ -98,4 +98,13 @@ public class UserController {
 
         return userService.deleteUser(id, request);
     }
+
+    @PostMapping("update")
+    public boolean updateUser(@RequestBody User newUser, HttpServletRequest request) {
+        if(newUser == null) {
+            return false;
+        }
+
+        return userService.updateUser(newUser, request);
+    }
 }

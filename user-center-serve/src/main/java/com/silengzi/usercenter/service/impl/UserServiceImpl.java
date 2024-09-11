@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.silengzi.usercenter.mapper.UserMapper;
 import com.silengzi.usercenter.model.domain.User;
 import com.silengzi.usercenter.service.UserService;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
@@ -216,6 +217,22 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             return false;
         }
         boolean result = this.removeById(id);
+        return result;
+    }
+
+    /**
+     * 更新用户信息
+     *
+     * @param newUser
+     * @param request
+     * @return
+     */
+    @Override
+    public Boolean updateUser(User newUser, HttpServletRequest request) {
+        if(newUser == null) {
+            return null;
+        }
+        boolean result = this.updateById(newUser);
         return result;
     }
 }

@@ -64,4 +64,13 @@ public interface UserService extends IService<User> {
      * @return
      */
     boolean deleteUser(long id, HttpServletRequest request);
+
+    /**
+     * 更新用户信息
+     *
+     * @param newUser
+     * @param request
+     * @return
+     */
+    Boolean updateUser(User newUser, HttpServletRequest request);
 }
