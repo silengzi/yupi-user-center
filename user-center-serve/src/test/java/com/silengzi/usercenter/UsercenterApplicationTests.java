@@ -1,6 +1,7 @@
 package com.silengzi.usercenter;
 
 import com.silengzi.usercenter.mapper.UsersMapper;
+import com.silengzi.usercenter.model.domain.User;
 import com.silengzi.usercenter.model.domain.Users;
 import com.silengzi.usercenter.service.UserService;
 import org.junit.Assert;
@@ -8,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @SpringBootTest
@@ -36,5 +38,6 @@ class UsercenterApplicationTests {
         long userId = userService.userRegister("silengzi", "12345678", "12345678", "1001");
         Assert.assertEquals(1, userId);
     }
+
 
 }

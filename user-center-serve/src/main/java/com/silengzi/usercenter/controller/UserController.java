@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 @RestController
 @RequestMapping("/user")
@@ -76,5 +77,14 @@ public class UserController {
         User currentUser = userService.getById(userId);
         User safetyUser = userService.getSafetyUser(currentUser);
         return safetyUser;
+    }
+
+    @GetMapping("/search")
+    public List<User> searchUserList(String username, HttpServletRequest request) {
+        if(username == null) {
+            username = "";
+        }
+        List<User> userList = userService.userList(username, request);
+        return userList;
     }
 }
