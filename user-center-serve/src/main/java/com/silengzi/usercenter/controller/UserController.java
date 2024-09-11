@@ -55,4 +55,13 @@ public class UserController {
         User user = userService.userLogin(userAccount, userPassword, request);
         return user;
     }
+
+    @PostMapping("/logout")
+    public int userLoglout(HttpServletRequest request) {
+        if(request == null) {
+            return -1;
+        }
+        int result = userService.userLogout(request);
+        return result;
+    }
 }

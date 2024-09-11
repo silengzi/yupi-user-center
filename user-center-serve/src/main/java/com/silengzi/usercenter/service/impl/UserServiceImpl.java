@@ -26,6 +26,17 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     private static final String SALT = "silengzi";
 
+    private static final String USER_LOGIN_STATE = "userLoginState";
+
+    /**
+     * 新用户注册
+     *
+     * @param userAccount       账号
+     * @param userPassword      密码
+     * @param checkPassword     校验密码
+     * @param planetCode        星球编号
+     * @return 新用户 ID
+     */
     @Override
     public long userRegister(String userAccount, String userPassword, String checkPassword, String planetCode) {
         // 校验参数是否非空
@@ -77,6 +88,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         return user.getId();
     }
 
+    /**
+     * 用户登录
+     *
+     * @param userAccount       账号
+     * @param userPassword      密码
+     * @param request
+     * @return 脱敏后的用户信息
+     */
     @Override
     public User userLogin(String userAccount, String userPassword, HttpServletRequest request) {
         // 1. 校验
@@ -117,11 +136,17 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         User safetyUser = getSafetyUser(user);
 
         // 4. 记录用户的登录态
-        request.getSession().setAttribute("userLoginState", safetyUser);
+        request.getSession().setAttribute(USER_LOGIN_STATE, safetyUser);
 
         return safetyUser;
     }
 
+    /**
+     * 用户信息脱敏
+     *
+     * @param originUser
+     * @return
+     */
     @Override
     public User getSafetyUser(User originUser) {
         if(originUser == null) {
@@ -142,6 +167,19 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         safetyUser.setPlanetCode(originUser.getPlanetCode());
 
         return safetyUser;
+    }
+
+    /**
+     * 用户注销
+     *
+     * @param request
+     * @return
+     */
+    @Override
+    public int userLogout(HttpServletRequest request) {
+        // 移除登录态
+        request.getSession().removeAttribute(USER_LOGIN_STATE);
+        return 1;
     }
 }
 
