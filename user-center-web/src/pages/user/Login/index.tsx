@@ -55,10 +55,11 @@ const Login: React.FC = () => {
   const handleLogin = async (values: API.LoginParams) => {
     try {
       // 登录
-      const msg = await login({
+      const result = await login({
         ...values
       });
-      if (msg.status === 'ok') {
+      // if (result.status === 'ok') {
+      if (result) {
         const defaultLoginSuccessMessage = '登录成功！';
         message.success(defaultLoginSuccessMessage);
         await fetchUserInfo(); // 获取用户信息
@@ -72,7 +73,7 @@ const Login: React.FC = () => {
         return;
       }
       // 如果失败去设置用户错误信息
-      setUserLoginState(msg);
+      setUserLoginState(result);
     } catch (error) {
       const defaultLoginFailureMessage = '登录失败，请重试！';
       message.error(defaultLoginFailureMessage);
@@ -147,7 +148,7 @@ const Login: React.FC = () => {
           // backgroundImageUrl="https://mdn.alipayobjects.com/huamei_gcee1x/afts/img/A*y0ZTS6WLwvgAAAAAAAAAAAAADml6AQ/fmt.webp"
           // backgroundVideoUrl="https://gw.alipayobjects.com/v/huamei_gcee1x/afts/video/jXRBRK_VAwoAAAAAAAAAAAAAK4eUAQBr"
           title="用户管理中心"
-          subTitle={'Ant Design 是西湖区最具影响力的 Web 设计规范'}
+          subTitle={'一个经典美观的后台管理系统'}
           initialValues={{
             autoLogin: true,
           }}
@@ -176,7 +177,7 @@ const Login: React.FC = () => {
           {type === 'account' && (
             <>
               <ProFormText
-                name="username"
+                name="userAccount"
                 fieldProps={{
                   size: 'large',
                   prefix: <UserOutlined className={styles.prefixIcon} />,
@@ -190,7 +191,7 @@ const Login: React.FC = () => {
                 ]}
               />
               <ProFormText.Password
-                name="password"
+                name="userPassword"
                 fieldProps={{
                   size: 'large',
                   prefix: <LockOutlined className={styles.prefixIcon} />,
