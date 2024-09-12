@@ -245,11 +245,16 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      * @return
      */
     @Override
-    public Boolean updateUser(User newUser, HttpServletRequest request) {
+    public User updateUser(User newUser, HttpServletRequest request) {
         if(newUser == null) {
             return null;
         }
         boolean result = this.updateById(newUser);
-        return result;
+        if(!result) {
+            return null;
+        }
+        User user = this.userDetail(newUser.getId(), request);
+        User safetyUser = getSafetyUser(user);
+        return safetyUser;
     }
 }

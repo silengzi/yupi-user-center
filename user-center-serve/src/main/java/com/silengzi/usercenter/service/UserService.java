@@ -81,5 +81,5 @@ public interface UserService extends IService<User> {
      * @param request
      * @return
      */
-    Boolean updateUser(User newUser, HttpServletRequest request);
+    User updateUser(User newUser, HttpServletRequest request);
 }

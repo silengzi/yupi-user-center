@@ -109,9 +109,9 @@ public class UserController {
     }
 
     @PostMapping("update")
-    public boolean updateUser(@RequestBody User newUser, HttpServletRequest request) {
+    public User updateUser(@RequestBody User newUser, HttpServletRequest request) {
         if(newUser == null) {
-            return false;
+            return null;
         }
 
         return userService.updateUser(newUser, request);
