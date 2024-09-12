@@ -205,6 +205,23 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     /**
+     * 查询用户详情
+     *
+     * @param id
+     * @param request
+     * @return
+     */
+    @Override
+    public User userDetail(long id, HttpServletRequest request) {
+        if(id <= 0) {
+            return null;
+        }
+        User user = this.getById(id);
+        User safetyUser = getSafetyUser(user);
+        return safetyUser;
+    }
+
+    /**
      * 删除用户
      *
      * @param id

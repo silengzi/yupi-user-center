@@ -5,7 +5,7 @@ import lombok.Data;
 import java.io.Serializable;
 
 @Data
-public class UserDeleteRequest implements Serializable {
+public class UserIdRequest implements Serializable {
     private static final long serialVersionUID = 789319750247503859L;
 
     /**

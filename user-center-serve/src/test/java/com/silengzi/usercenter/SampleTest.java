@@ -1,7 +1,7 @@
 package com.silengzi.usercenter;
 
-import com.silengzi.usercenter.mapper.UsersMapper;
-import com.silengzi.usercenter.model.domain.Users;
+import com.silengzi.usercenter.mapper.UserMapper;
+import com.silengzi.usercenter.model.domain.User;
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -12,12 +12,12 @@ import java.util.List;
 public class SampleTest {
 
     @Resource
-    private UsersMapper usersMapper;
+    private UserMapper userMapper;
 
     @Test
     public void testSelect() {
         System.out.println(("----- selectAll method test ------"));
-        List<Users> userList = usersMapper.selectList(null);
+        List<User> userList = userMapper.selectList(null);
 //        Assert.isTrue(5 == userList.size(), "");
         Assert.assertEquals(2, userList.size());
         userList.forEach(System.out::println);

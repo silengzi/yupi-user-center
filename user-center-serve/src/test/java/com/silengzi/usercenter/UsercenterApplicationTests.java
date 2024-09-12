@@ -1,22 +1,20 @@
 package com.silengzi.usercenter;
 
-import com.silengzi.usercenter.mapper.UsersMapper;
+import com.silengzi.usercenter.mapper.UserMapper;
 import com.silengzi.usercenter.model.domain.User;
-import com.silengzi.usercenter.model.domain.Users;
 import com.silengzi.usercenter.service.UserService;
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @SpringBootTest
 class UsercenterApplicationTests {
 
     @Resource
-    private UsersMapper usersMapper;
+    private UserMapper userMapper;
 
     @Resource
     private UserService userService;
@@ -28,7 +26,7 @@ class UsercenterApplicationTests {
     @Test
     void testUser() {
         System.out.println("-----------------test-------------------");
-        List<Users> userList = usersMapper.selectList(null);
+        List<User> userList = userMapper.selectList(null);
         Assert.assertEquals(5, userList.size());
         userList.forEach(System.out::println);
     }
