@@ -22,10 +22,11 @@ export async function getInitialState(): Promise<{
 }> {
   const fetchUserInfo = async () => {
     try {
-      const msg = await queryCurrentUser({
+      const result = await queryCurrentUser({
         skipErrorHandler: true,
       });
-      return msg.data;
+      return result;
+      // return result.data;
     } catch (error) {
       history.push(loginPath);
     }
