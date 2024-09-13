@@ -1,4 +1,4 @@
-import { addRule, removeRule, rule, updateRule } from '@/services/ant-design-pro/api';
+import { addRule, removeRule, userSearch, updateRule } from '@/services/ant-design-pro/api';
 import { PlusOutlined } from '@ant-design/icons';
 import type { ActionType, ProColumns, ProDescriptionsItemProps } from '@ant-design/pro-components';
 import {
@@ -11,7 +11,7 @@ import {
   ProTable,
 } from '@ant-design/pro-components';
 import '@umijs/max';
-import { Button, Drawer, Input, message } from 'antd';
+import { Button, Drawer, Input, Image, message } from 'antd';
 import React, { useRef, useState } from 'react';
 import type { FormValueType } from './components/UpdateForm';
 import UpdateForm from './components/UpdateForm';
@@ -21,7 +21,7 @@ import UpdateForm from './components/UpdateForm';
  * @zh-CN 添加节点
  * @param fields
  */
-const handleAdd = async (fields: API.RuleListItem) => {
+const handleAdd = async (fields: API.CurrentUser) => {
   const hide = message.loading('正在添加');
   try {
     await addRule({
@@ -67,12 +67,12 @@ const handleUpdate = async (fields: FormValueType) => {
  *
  * @param selectedRows
  */
-const handleRemove = async (selectedRows: API.RuleListItem[]) => {
+const handleRemove = async (selectedRows: API.CurrentUser[]) => {
   const hide = message.loading('正在删除');
   if (!selectedRows) return true;
   try {
     await removeRule({
-      key: selectedRows.map((row) => row.key),
+      key: selectedRows.map((row) => row.id),
     });
     hide();
     message.success('Deleted successfully and will refresh soon');
@@ -96,18 +96,18 @@ const TableList: React.FC = () => {
   const [updateModalOpen, handleUpdateModalOpen] = useState<boolean>(false);
   const [showDetail, setShowDetail] = useState<boolean>(false);
   const actionRef = useRef<ActionType>();
-  const [currentRow, setCurrentRow] = useState<API.RuleListItem>();
-  const [selectedRowsState, setSelectedRows] = useState<API.RuleListItem[]>([]);
+  const [currentRow, setCurrentRow] = useState<API.CurrentUser>();
+  const [selectedRowsState, setSelectedRows] = useState<API.CurrentUser[]>([]);
 
   /**
    * @en-US International configuration
    * @zh-CN 国际化配置
    * */
 
-  const columns: ProColumns<API.RuleListItem>[] = [
+  const columns: ProColumns<API.CurrentUser>[] = [
     {
-      title: '规则名称',
-      dataIndex: 'name',
+      title: '用户名称',
+      dataIndex: 'username',
       render: (dom, entity) => {
         return (
           <a
@@ -122,46 +122,96 @@ const TableList: React.FC = () => {
       },
     },
     {
-      title: '描述',
-      dataIndex: 'desc',
+      title: '账号', // label
+      dataIndex: 'userAccount', // 字段名
       valueType: 'textarea',
+      search: false // 是否隐藏搜索框
     },
     {
+      title: '头像', // label
+      dataIndex: 'avatarUrl', // 字段名
+      valueType: 'textarea',
+      search: false, // 是否隐藏搜索框
+      render: (dom, entity) => {
+        return (
+          // <div>
+            // <img src={entity.avatarUrl} style={{width: '50px', height: '50px'}} alt='头像加载失败'/>
+          // </div>
+          <Image
+            width={50}
+            src={entity.avatarUrl || 
+                  (entity.gender === 1 ? 
+                    'https://gd-hbimg.huaban.com/7cf435f0e7ccbf5899d1270b0c718002654092a2580c-xxeliI_fw658webp' : 
+                    'https://gd-hbimg.huaban.com/7a42d34776fffc359f221e1ba67c3faa0266b02bd9be-dACpqJ_fw658webp')}
+          />
+        );
+      },
+    },
+    {
+      title: '手机号', // label
+      dataIndex: 'phone', // 字段名
+      valueType: 'textarea',
+      search: false // 是否隐藏搜索框
+    },
+    {
+      title: '邮箱', // label
+      dataIndex: 'email', // 字段名
+      valueType: 'textarea',
+      search: false // 是否隐藏搜索框
+    },
+    /* {
       title: '服务调用次数',
       dataIndex: 'callNo',
       sorter: true,
       hideInForm: true,
       renderText: (val: string) => `${val}${'万'}`,
-    },
+    }, */
     {
-      title: '状态',
-      dataIndex: 'status',
+      title: '性别',
+      dataIndex: 'gender',
       hideInForm: true,
+      search: false, // 是否隐藏搜索框
       valueEnum: {
         0: {
-          text: '关闭',
-          status: 'Default',
+          text: '女',
         },
         1: {
-          text: '运行中',
-          status: 'Processing',
-        },
-        2: {
-          text: '已上线',
-          status: 'Success',
-        },
-        3: {
-          text: '异常',
-          status: 'Error',
+          text: '男',
         },
       },
     },
     {
-      title: '上次调度时间',
+      title: '角色',
+      dataIndex: 'userRole',
+      hideInForm: true,
+      search: false, // 是否隐藏搜索框
+      valueEnum: {
+        0: {
+          text: '普通用户',
+        },
+        1: {
+          text: '管理员',
+        },
+      },
+    },
+    {
+      title: '状态',
+      dataIndex: 'userStatus',
+      hideInForm: true,
+      search: false, // 是否隐藏搜索框
+      valueEnum: {
+        0: {
+          text: '正常',
+        },
+      },
+    },
+    {
+      title: '创建时间',
       sorter: true,
-      dataIndex: 'updatedAt',
+      dataIndex: 'createTime',
       valueType: 'dateTime',
-      renderFormItem: (item, { defaultRender, ...rest }, form) => {
+      search: false, // 是否隐藏搜索框
+      /* renderFormItem: (item, { defaultRender, ...rest }, form) => {
         const status = form.getFieldValue('status');
         if (`${status}` === '0') {
           return false;
@@ -170,8 +220,15 @@ const TableList: React.FC = () => {
           return <Input {...rest} placeholder={'请输入异常原因！'} />;
         }
         return defaultRender(item);
-      },
+      }, */
     },
+    // {
+    //   title: '修改时间',
+    //   sorter: true,
+    //   dataIndex: 'updateTime',
+    //   valueType: 'dateTime',
+    //   search: false // 是否隐藏搜索框
+    // },
     {
       title: '操作',
       dataIndex: 'option',
@@ -184,24 +241,24 @@ const TableList: React.FC = () => {
             setCurrentRow(record);
           }}
         >
-          配置
+          修改
         </a>,
-        <a key="subscribeAlert" href="https://procomponents.ant.design/">
-          订阅警报
+        <a key="subscribeAlert">
+          删除
         </a>,
       ],
     },
   ];
   return (
     <PageContainer>
-      <ProTable<API.RuleListItem, API.PageParams>
+      <ProTable<API.CurrentUser, API.PageParams>
         headerTitle={'查询表格'}
         actionRef={actionRef}
-        rowKey="key"
+        rowKey="id"
         search={{
           labelWidth: 120,
         }}
-        toolBarRender={() => [
+        /* toolBarRender={() => [
           <Button
             type="primary"
             key="primary"
@@ -211,8 +268,8 @@ const TableList: React.FC = () => {
           >
             <PlusOutlined /> 新建
           </Button>,
-        ]}
-        request={rule}
+        ]} */
+        request={userSearch}
         columns={columns}
         rowSelection={{
           onChange: (_, selectedRows) => {
@@ -233,13 +290,14 @@ const TableList: React.FC = () => {
                 {selectedRowsState.length}
               </a>{' '}
               项 &nbsp;&nbsp;
-              <span>
+              {/* <span>
                 服务调用次数总计 {selectedRowsState.reduce((pre, item) => pre + item.callNo!, 0)} 万
-              </span>
+              </span> */}
             </div>
           }
         >
           <Button
+            type="primary"
             onClick={async () => {
               await handleRemove(selectedRowsState);
               setSelectedRows([]);
@@ -248,7 +306,7 @@ const TableList: React.FC = () => {
           >
             批量删除
           </Button>
-          <Button type="primary">批量审批</Button>
+          {/* <Button type="primary">批量审批</Button> */}
         </FooterToolbar>
       )}
       <ModalForm
@@ -257,7 +315,7 @@ const TableList: React.FC = () => {
         open={createModalOpen}
         onOpenChange={handleModalOpen}
         onFinish={async (value) => {
-          const success = await handleAdd(value as API.RuleListItem);
+          const success = await handleAdd(value as API.CurrentUser);
           if (success) {
             handleModalOpen(false);
             if (actionRef.current) {
@@ -308,17 +366,17 @@ const TableList: React.FC = () => {
         }}
         closable={false}
       >
-        {currentRow?.name && (
-          <ProDescriptions<API.RuleListItem>
+        {currentRow?.username && (
+          <ProDescriptions<API.CurrentUser>
             column={2}
-            title={currentRow?.name}
+            title={currentRow?.username}
             request={async () => ({
               data: currentRow || {},
             })}
             params={{
-              id: currentRow?.name,
+              id: currentRow?.username,
             }}
-            columns={columns as ProDescriptionsItemProps<API.RuleListItem>[]}
+            columns={columns as ProDescriptionsItemProps<API.CurrentUser>[]}
           />
         )}
       </Drawer>

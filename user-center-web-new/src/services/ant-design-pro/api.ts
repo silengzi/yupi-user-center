@@ -2,7 +2,7 @@
 /* eslint-disable */
 import { request } from '@umijs/max';
 
-/** 获取当前的用户 GET /api/currentUser */
+/** 获取当前的用户 GET /api/user/currentUser */
 export async function currentUser(options?: { [key: string]: any }) {
   // return request<{ data: API.CurrentUser; }>('/api/user/currentUser', {
   return request<API.CurrentUser>('/api/user/currentUser', {
@@ -11,9 +11,10 @@ export async function currentUser(options?: { [key: string]: any }) {
   });
 }
 
-/** 退出登录接口 POST /api/login/outLogin */
+/** 退出登录接口 POST /api/user/logout */
 export async function outLogin(options?: { [key: string]: any }) {
-  return request<Record<string, any>>('/api/login/outLogin', {
+  // return request<Record<string, any>>('/api/user/logout', {
+  return request<number>('/api/user/logout', {
     method: 'POST',
     ...(options || {}),
   });
@@ -52,8 +53,8 @@ export async function getNotices(options?: { [key: string]: any }) {
   });
 }
 
-/** 获取规则列表 GET /api/rule */
-export async function rule(
+/** 获取用户列表 GET /api/user/search */
+export async function userSearch(
   params: {
     // query
     /** 当前的页码 */
@@ -63,13 +64,22 @@ export async function rule(
   },
   options?: { [key: string]: any },
 ) {
-  return request<API.RuleList>('/api/rule', {
+  const res = request<API.UserList>('/api/user/search', {
     method: 'GET',
     params: {
       ...params,
     },
     ...(options || {}),
   });
+
+  const p = new Promise<API.UserList>(async (resolve, reject) => {
+    resolve({
+      data: await res as any,
+      success: true,
+      total: 0
+    })
+  })
+  return p
 }
 
 /** 更新规则 PUT /api/rule */
