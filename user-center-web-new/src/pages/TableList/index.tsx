@@ -243,7 +243,15 @@ const TableList: React.FC = () => {
         >
           修改
         </a>,
-        <a key="subscribeAlert">
+        <a
+          key="subscribeAlert"
+          onClick={async () => {
+            // handleDeleteUser(true);
+            await handleRemove(selectedRowsState);
+            setCurrentRow(record);
+            actionRef.current?.reload();
+          }}
+        >
           删除
         </a>,
       ],

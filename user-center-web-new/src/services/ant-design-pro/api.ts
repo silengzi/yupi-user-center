@@ -104,12 +104,12 @@ export async function addRule(options?: { [key: string]: any }) {
   });
 }
 
-/** 删除规则 DELETE /api/rule */
+/** 删除用户 DELETE /api/user/delete */
 export async function removeRule(options?: { [key: string]: any }) {
-  return request<Record<string, any>>('/api/rule', {
+  return request<Record<string, any>>('/api/user/delete', {
     method: 'POST',
     data: {
-      method: 'delete',
+      method: 'post',
       ...(options || {}),
     },
   });
