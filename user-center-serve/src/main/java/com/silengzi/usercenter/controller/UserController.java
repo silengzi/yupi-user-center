@@ -81,11 +81,16 @@ public class UserController {
     }
 
     @GetMapping("/search")
-    public List<User> searchUserList(String username, HttpServletRequest request) {
+    public List<User> searchUserList(
+            @RequestParam(value = "username", required = false, defaultValue = "") String username,
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size,
+            HttpServletRequest request
+    ) {
         if(username == null) {
             username = "";
         }
-        List<User> userList = userService.userList(username, request);
+        List<User> userList = userService.userList(username, page, size, request);
         return userList;
     }
 
@@ -99,13 +104,23 @@ public class UserController {
     }
 
     @PostMapping("delete")
-    public boolean deleteUser(@RequestBody UserIdRequest userIdRequest, HttpServletRequest request) {
-        long id = userIdRequest.getId();
-        if(id <= 0) {
+    public boolean deleteUser(@RequestBody long[] ids, HttpServletRequest request) {
+        if(ids == null || ids.length == 0) {
             return false;
         }
 
-        return userService.deleteUser(id, request);
+        for (long id: ids) {
+            if(id <= 0) {
+                return false;
+            }
+
+            boolean result = userService.deleteUser(id, request);
+            if(!result) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     @PostMapping("update")

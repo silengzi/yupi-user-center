@@ -54,7 +54,7 @@ public interface UserService extends IService<User> {
      * @param request
      * @return  用户列表
      */
-    List<User> userList(String username, HttpServletRequest request);
+    List<User> userList(String username, int page, int size, HttpServletRequest request);
 
     /**
      * 获取用户详情

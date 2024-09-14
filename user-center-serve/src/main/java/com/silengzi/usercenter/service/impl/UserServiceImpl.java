@@ -2,6 +2,8 @@ package com.silengzi.usercenter.service.impl;
 import java.util.Date;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.silengzi.usercenter.mapper.UserMapper;
 import com.silengzi.usercenter.model.domain.User;
@@ -195,12 +197,15 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      * @return
      */
     @Override
-    public List<User> userList(String username, HttpServletRequest request) {
+    public List<User> userList(String username, int page, int size, HttpServletRequest request) {
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         if(StringUtils.isNotBlank(username)) {
             queryWrapper.like("username", username);
         }
-        List<User> userlist = this.list(queryWrapper);
+        // List<User> userlist = this.list(queryWrapper);
+        IPage<User> pageParam = new Page<>(page, size);
+        IPage<User> userIPage = this.page(pageParam, queryWrapper);
+        List<User> userlist = userIPage.getRecords();
         List<User> safetyUserList = userlist.stream().map(item -> getSafetyUser(item)).collect(Collectors.toList());
         return safetyUserList;
     }
