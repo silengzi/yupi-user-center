@@ -1,4 +1,4 @@
-import { addRule, removeRule, userSearch, updateRule } from '@/services/ant-design-pro/api';
+import { addRule, deleteUser, userSearch, updateUser } from '@/services/ant-design-pro/api';
 import { PlusOutlined } from '@ant-design/icons';
 import type { ActionType, ProColumns, ProDescriptionsItemProps } from '@ant-design/pro-components';
 import {
@@ -11,7 +11,8 @@ import {
   ProTable,
 } from '@ant-design/pro-components';
 import '@umijs/max';
-import { Button, Drawer, Input, Image, message } from 'antd';
+import type { PopconfirmProps } from 'antd';
+import { Button, Drawer, Input, Image, message, Popconfirm } from 'antd';
 import React, { useRef, useState } from 'react';
 import type { FormValueType } from './components/UpdateForm';
 import UpdateForm from './components/UpdateForm';
@@ -38,25 +39,20 @@ const handleAdd = async (fields: API.CurrentUser) => {
 };
 
 /**
- * @en-US Update node
- * @zh-CN 更新节点
+ * 更新用户信息
  *
- * @param fields
+ * @param user
  */
-const handleUpdate = async (fields: FormValueType) => {
-  const hide = message.loading('Configuring');
+const handleUpdate = async (user: API.CurrentUser) => {
+  const hide = message.loading('正在修改');
   try {
-    await updateRule({
-      name: fields.name,
-      desc: fields.desc,
-      key: fields.key,
-    });
+    await updateUser(user);
     hide();
-    message.success('Configuration is successful');
+    message.success('修改成功');
     return true;
   } catch (error) {
     hide();
-    message.error('Configuration failed, please try again!');
+    message.error('修改失败，请重试！');
     return false;
   }
 };
@@ -71,18 +67,18 @@ const handleRemove = async (selectedRows: API.CurrentUser[]) => {
   const hide = message.loading('正在删除');
   if (!selectedRows) return true;
   try {
-    await removeRule({
-      key: selectedRows.map((row) => row.id),
-    });
+    // await deleteUser({ key: selectedRows.map((row) => row.id) });
+    await deleteUser(selectedRows.map(row => row.id));
     hide();
-    message.success('Deleted successfully and will refresh soon');
+    message.success('删除成功，即将刷新');
     return true;
   } catch (error) {
     hide();
-    message.error('Delete failed, please try again');
+    message.error('删除失败，请重试');
     return false;
   }
 };
+
 const TableList: React.FC = () => {
   /**
    * @en-US Pop-up window of new window
@@ -98,6 +94,28 @@ const TableList: React.FC = () => {
   const actionRef = useRef<ActionType>();
   const [currentRow, setCurrentRow] = useState<API.CurrentUser>();
   const [selectedRowsState, setSelectedRows] = useState<API.CurrentUser[]>([]);
+
+  const confirm = async (e: any, record: any) => {
+    // handleDeleteUser(true);
+    await handleRemove(record);
+    if(record.length == 1) {
+      // 删除单个
+      setCurrentRow(record);
+      actionRef.current?.reload();
+    } else {
+      // 批量删除
+      setSelectedRows([]);
+      actionRef.current?.reloadAndRest?.();
+    }
+
+    // console.log(e);
+    // message.success('删除成功');
+  };
+  
+  const cancel: PopconfirmProps['onCancel'] = (e) => {
+    // console.log(e);
+    message.error('点击了取消');
+  };
 
   /**
    * @en-US International configuration
@@ -243,23 +261,31 @@ const TableList: React.FC = () => {
         >
           修改
         </a>,
-        <a
-          key="subscribeAlert"
-          onClick={async () => {
-            // handleDeleteUser(true);
-            await handleRemove(selectedRowsState);
-            setCurrentRow(record);
-            actionRef.current?.reload();
+        <Popconfirm
+          title="删除用户"
+          description="你确定要删除该用户吗？"
+          onConfirm={(e) => {
+            confirm!(e, [record])
           }}
+          onCancel={cancel}
+          okText="确定"
+          cancelText="取消"
         >
-          删除
-        </a>,
+          <a
+            key="subscribeAlert"
+          >
+            删除
+          </a>
+        </Popconfirm>
       ],
     },
   ];
   return (
     <PageContainer>
       <ProTable<API.CurrentUser, API.PageParams>
+        style={{
+          marginBottom: '100px'
+        }}
         headerTitle={'查询表格'}
         actionRef={actionRef}
         rowKey="id"
@@ -278,6 +304,10 @@ const TableList: React.FC = () => {
           </Button>,
         ]} */
         request={userSearch}
+        pagination={{
+          pageSize: 10, // 一页 10 条
+          onChange: (page) => console.log(page),
+        }}
         columns={columns}
         rowSelection={{
           onChange: (_, selectedRows) => {
@@ -304,20 +334,31 @@ const TableList: React.FC = () => {
             </div>
           }
         >
-          <Button
-            type="primary"
-            onClick={async () => {
-              await handleRemove(selectedRowsState);
-              setSelectedRows([]);
-              actionRef.current?.reloadAndRest?.();
+          <Popconfirm
+            title="批量删除用户"
+            description="你确定要批量删除这些用户吗？"
+            onConfirm={(e) => {
+              confirm!(e, selectedRowsState)
             }}
+            onCancel={cancel}
+            okText="确定"
+            cancelText="取消"
           >
-            批量删除
-          </Button>
+            <Button
+              type="primary"
+              // onClick={async () => {
+              //   await handleRemove(selectedRowsState);
+              //   setSelectedRows([]);
+              //   actionRef.current?.reloadAndRest?.();
+              // }}
+            >
+              批量删除
+            </Button>
+          </Popconfirm>
           {/* <Button type="primary">批量审批</Button> */}
         </FooterToolbar>
       )}
-      <ModalForm
+      {/* <ModalForm
         title={'新建规则'}
         width="400px"
         open={createModalOpen}
@@ -343,7 +384,7 @@ const TableList: React.FC = () => {
           name="name"
         />
         <ProFormTextArea width="md" name="desc" />
-      </ModalForm>
+      </ModalForm> */}
       <UpdateForm
         onSubmit={async (value) => {
           const success = await handleUpdate(value);

@@ -68,6 +68,8 @@ export async function userSearch(
     method: 'GET',
     params: {
       ...params,
+      page: params.current,
+      size: params.pageSize,
     },
     ...(options || {}),
   });
@@ -76,15 +78,25 @@ export async function userSearch(
     resolve({
       data: await res as any,
       success: true,
-      total: 0
+      total: 14
     })
   })
   return p
 }
 
-/** 更新规则 PUT /api/rule */
-export async function updateRule(options?: { [key: string]: any }) {
-  return request<API.RuleListItem>('/api/rule', {
+/** 获取当前的用户 GET /api/user/userDetail */
+export async function userDetail(params: {id: number}, options?: { [key: string]: any }) {
+  // return request<{ data: API.userDetail; }>('/api/user/userDetail', {
+  return request<API.CurrentUser>('/api/user/userDetail', {
+    method: 'GET',
+    params,
+    ...(options || {}),
+  });
+}
+
+/** 更新用户信息 PUT /api/user/update */
+export async function updateUser(options?: API.CurrentUser) {
+  return request<API.CurrentUser>('/api/user/update', {
     method: 'POST',
     data: {
       method: 'update',
@@ -105,12 +117,15 @@ export async function addRule(options?: { [key: string]: any }) {
 }
 
 /** 删除用户 DELETE /api/user/delete */
-export async function removeRule(options?: { [key: string]: any }) {
-  return request<Record<string, any>>('/api/user/delete', {
+// export async function deleteUser(options?: { [key: string]: any }) {
+  // return request<Record<string, any>>('/api/user/delete', {
+export async function deleteUser(ids?: { [key: string]: any }) {
+  return request<number[]>('/api/user/delete', {
     method: 'POST',
-    data: {
-      method: 'post',
-      ...(options || {}),
-    },
+    data: ids
+    // data: {
+    //   method: 'post',
+    //   ...(options || {}),
+    // },
   });
 }
