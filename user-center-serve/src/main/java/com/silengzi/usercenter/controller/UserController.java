@@ -1,7 +1,9 @@
 package com.silengzi.usercenter.controller;
 
+import com.silengzi.usercenter.common.BaseResponse;
+import com.silengzi.usercenter.common.ErrorCode;
+import com.silengzi.usercenter.common.ResultUtils;
 import com.silengzi.usercenter.model.domain.User;
-import com.silengzi.usercenter.model.request.UserIdRequest;
 import com.silengzi.usercenter.model.request.UserLoginRequest;
 import com.silengzi.usercenter.model.request.UserRegisterRequest;
 import com.silengzi.usercenter.service.UserService;
@@ -25,63 +27,64 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public long register(@RequestBody UserRegisterRequest userRegisterRequest) {
+    public BaseResponse<Long> register(@RequestBody UserRegisterRequest userRegisterRequest) {
         // 校验接口参数非空
         if(userRegisterRequest == null) {
-            return -1;
+            return ResultUtils.error(ErrorCode.NULL_ERROR, "参数不能为空");
         }
 
         String userAccount = userRegisterRequest.getUserAccount();
         String userPassword = userRegisterRequest.getUserPassword();
         String checkPassword = userRegisterRequest.getCheckPassword();
         if(StringUtils.isAnyBlank(userAccount, userPassword, checkPassword)) {
-            return -1;
+            return ResultUtils.error(ErrorCode.PARAMS_ERROR, "参数不能为空");
         }
 
         long result = userService.userRegister(userAccount, userPassword, checkPassword, "100001");
-        return result;
+        return ResultUtils.success(result);
     }
 
     @PostMapping("/login")
-    public User login(@RequestBody UserLoginRequest userLoginRequest, HttpServletRequest request) {
+    public BaseResponse<User> login(@RequestBody UserLoginRequest userLoginRequest, HttpServletRequest request) {
         if(userLoginRequest == null) {
-            return null;
+            return ResultUtils.error(ErrorCode.PARAMS_ERROR);
         }
 
         String userAccount = userLoginRequest.getUserAccount();
         String userPassword = userLoginRequest.getUserPassword();
         if(StringUtils.isAnyBlank(userAccount, userPassword)) {
-            return null;
+            return ResultUtils.error(ErrorCode.PARAMS_ERROR);
         }
 
         User user = userService.userLogin(userAccount, userPassword, request);
-        return user;
+        return ResultUtils.success(user);
     }
 
     @PostMapping("/logout")
-    public int userLoglout(HttpServletRequest request) {
+    public BaseResponse<Integer> userLoglout(HttpServletRequest request) {
         if(request == null) {
-            return -1;
+            return ResultUtils.error(ErrorCode.NULL_ERROR, "request 为空");
         }
         int result = userService.userLogout(request);
-        return result;
+        return ResultUtils.success(result);
     }
     
     @GetMapping("/currentUser")
-    public User currentUser(HttpServletRequest request) {
+    public BaseResponse<User> currentUser(HttpServletRequest request) {
         Object obj = request.getSession().getAttribute("userLoginState");
         User user = (User) obj;
         if(user == null) {
-            return null;
+            BaseResponse res = ResultUtils.error(ErrorCode.NO_LOGIN);
+            return res;
         }
         long userId = user.getId();
         User currentUser = userService.getById(userId);
         User safetyUser = userService.getSafetyUser(currentUser);
-        return safetyUser;
+        return ResultUtils.success(safetyUser);
     }
 
     @GetMapping("/search")
-    public List<User> searchUserList(
+    public BaseResponse<List<User>> searchUserList(
             @RequestParam(value = "username", required = false, defaultValue = "") String username,
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "size", defaultValue = "10") int size,
@@ -91,44 +94,46 @@ public class UserController {
             username = "";
         }
         List<User> userList = userService.userList(username, page, size, request);
-        return userList;
+        return ResultUtils.success(userList);
     }
 
     @GetMapping("/userDetail")
-    public User userDetail(Long id, HttpServletRequest request) {
+    public BaseResponse<User> userDetail(Long id, HttpServletRequest request) {
         if(id == null || id <= 0) {
             return null;
         }
 
-        return userService.userDetail(id, request);
+        User user = userService.userDetail(id, request);
+        return ResultUtils.success(user);
     }
 
     @PostMapping("delete")
-    public boolean deleteUser(@RequestBody long[] ids, HttpServletRequest request) {
+    public BaseResponse<Boolean> deleteUser(@RequestBody long[] ids, HttpServletRequest request) {
         if(ids == null || ids.length == 0) {
-            return false;
+            return ResultUtils.error(ErrorCode.NULL_ERROR);
         }
 
         for (long id: ids) {
             if(id <= 0) {
-                return false;
+                return ResultUtils.error(ErrorCode.PARAMS_ERROR, "id 不能小于 0");
             }
 
             boolean result = userService.deleteUser(id, request);
             if(!result) {
-                return false;
+                return ResultUtils.error(ErrorCode.SYSTEM_ERROR, "删除失败");
             }
         }
 
-        return true;
+        return ResultUtils.success(true);
     }
 
     @PostMapping("update")
-    public User updateUser(@RequestBody User newUser, HttpServletRequest request) {
+    public BaseResponse<User> updateUser(@RequestBody User newUser, HttpServletRequest request) {
         if(newUser == null) {
             return null;
         }
 
-        return userService.updateUser(newUser, request);
+        User user = userService.updateUser(newUser, request);
+        return ResultUtils.success(user);
     }
 }
