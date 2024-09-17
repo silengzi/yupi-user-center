@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.silengzi.usercenter.common.ErrorCode;
+import com.silengzi.usercenter.exception.BusinessException;
 import com.silengzi.usercenter.mapper.UserMapper;
 import com.silengzi.usercenter.model.domain.User;
 import com.silengzi.usercenter.service.UserService;
@@ -21,6 +23,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static com.silengzi.usercenter.contant.UserConstant.USER_LOGIN_STATE;
+
 /**
  *
  */
@@ -31,8 +35,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     private UserMapper userMapper;
 
     private static final String SALT = "silengzi";
-
-    private static final String USER_LOGIN_STATE = "userLoginState";
 
     /**
      * 新用户注册
@@ -47,29 +49,29 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     public long userRegister(String userAccount, String userPassword, String checkPassword, String planetCode) {
         // 校验参数是否非空
         if (StringUtils.isAnyBlank(userAccount, userPassword, checkPassword, planetCode)) {
-            return -1;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "参数不能为空");
         }
 
         // 账户长度不小于4位
         if(userAccount.length() < 4) {
-            return -1;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "账户长度不小于4位");
         }
 
         // 密码长度不小于八位
         if(userPassword.length() < 8) {
-            return -1;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "密码长度不小于八位");
         }
 
         // 账户不能包含特殊字符
         String validPattern = "[`~!@#$%^&*()+=|{}':;',\\\\[\\\\].<>/?~！@#￥%……&*（）——+|{}【】‘；：”“’。，、？]";
         Matcher matcher = Pattern.compile(validPattern).matcher(userAccount);
         if (matcher.find()) {
-            return -1;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "账户不能包含特殊字符");
         }
 
         // 密码和校验密码必须相同
         if(!userPassword.equals(checkPassword)) {
-            return -1;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "密码和校验密码必须相同");
         }
 
         // 账户不能重复
@@ -77,7 +79,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         queryWrapper.eq("userAccount", userAccount);
         long count = userMapper.selectCount(queryWrapper);
         if(count > 0) {
-            return -1;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "账户不能重复");
         }
 
         // 加密
@@ -88,7 +90,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         user.setUserPassword(encryptPassword);
         boolean saveResult = this.save(user);
         if(!saveResult) {
-            return -1;
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "插入失败");
         }
 
         return user.getId();
@@ -107,24 +109,24 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         // 1. 校验
         // 校验参数是否为空
         if(StringUtils.isAnyBlank(userAccount, userPassword)) {
-            return null;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "参数不能为空");
         }
 
         // 账号长度不能小于四位
         if(userAccount.length() < 4) {
-            return null;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "账号长度不能小于四位");
         }
 
         // 密码长度不能小于8位
         if(userPassword.length() < 8) {
-            return null;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "密码长度不能小于8位");
         }
 
         // 账户不能包含特殊字符
         String validPattern = "[`~!@#$%^&*()+=|{}':;',\\\\[\\\\].<>/?~！@#￥%……&*（）——+|{}【】‘；：”“’。，、？]";
         Matcher matcher = Pattern.compile(validPattern).matcher(userAccount);
         if (matcher.find()) {
-            return null;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "账户不能包含特殊字符");
         }
 
         // 2. 加密
@@ -135,7 +137,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         User user = userMapper.selectOne(queryWrapper);
         // 如果账号或密码不匹配
         if(user == null) {
-            return null;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "账号或密码不匹配");
         }
 
         // 3. 用户信息脱敏
@@ -156,7 +158,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Override
     public User getSafetyUser(User originUser) {
         if(originUser == null) {
-            return null;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "参数不能为空");
         }
 
         User safetyUser = new User();
@@ -218,9 +220,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      * @return
      */
     @Override
-    public User userDetail(long id, HttpServletRequest request) {
-        if(id <= 0) {
-            return null;
+    public User userDetail(Long id, HttpServletRequest request) {
+        if(id == null || id <= 0) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "id 不能为空且必须大于0");
         }
         User user = this.getById(id);
         User safetyUser = getSafetyUser(user);
@@ -235,9 +237,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      * @return
      */
     @Override
-    public boolean deleteUser(long id, HttpServletRequest request) {
-        if(id <= 0) {
-            return false;
+    public boolean deleteUser(Long id, HttpServletRequest request) {
+        if(id == null || id <= 0) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "id 不能为空且必须大于0");
         }
         boolean result = this.removeById(id);
         return result;
@@ -253,11 +255,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Override
     public User updateUser(User newUser, HttpServletRequest request) {
         if(newUser == null) {
-            return null;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "参数不能为空");
         }
         boolean result = this.updateById(newUser);
         if(!result) {
-            return null;
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "修改失败");
         }
         User user = this.userDetail(newUser.getId(), request);
         User safetyUser = getSafetyUser(user);

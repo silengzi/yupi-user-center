@@ -63,7 +63,7 @@ public interface UserService extends IService<User> {
      * @param request
      * @return
      */
-    User userDetail(long id, HttpServletRequest request);
+    User userDetail(Long id, HttpServletRequest request);
 
     /**
      * 删除用户
@@ -72,7 +72,7 @@ public interface UserService extends IService<User> {
      * @param request
      * @return
      */
-    boolean deleteUser(long id, HttpServletRequest request);
+    boolean deleteUser(Long id, HttpServletRequest request);
 
     /**
      * 更新用户信息

@@ -158,6 +158,8 @@ const Login: React.FC = () => {
         // };
         // history.push(redirect || '/');
         return;
+      } else {
+        message.error(result.description);
       }
       // console.log(result);
       // 如果失败去设置用户错误信息
