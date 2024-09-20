@@ -7,6 +7,7 @@ import com.silengzi.usercenter.exception.BusinessException;
 import com.silengzi.usercenter.model.domain.User;
 import com.silengzi.usercenter.model.request.UserLoginRequest;
 import com.silengzi.usercenter.model.request.UserRegisterRequest;
+import com.silengzi.usercenter.model.result.PageResult;
 import com.silengzi.usercenter.service.UserService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -91,7 +92,7 @@ public class UserController {
     }
 
     @GetMapping("/search")
-    public BaseResponse<List<User>> searchUserList(
+    public BaseResponse<PageResult<User>> searchUserList(
             @RequestParam(value = "username", required = false, defaultValue = "") String username,
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "size", defaultValue = "10") int size,
@@ -102,9 +103,9 @@ public class UserController {
             username = "";
         }
 
-        List<User> userList = userService.userList(username, page, size, request);
+        PageResult<User> pageResult = userService.userList(username, page, size, request);
 
-        return ResultUtils.success(userList);
+        return ResultUtils.success(pageResult);
     }
 
     @GetMapping("/userDetail")

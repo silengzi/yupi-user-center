@@ -9,6 +9,7 @@ import com.silengzi.usercenter.common.ErrorCode;
 import com.silengzi.usercenter.exception.BusinessException;
 import com.silengzi.usercenter.mapper.UserMapper;
 import com.silengzi.usercenter.model.domain.User;
+import com.silengzi.usercenter.model.result.PageResult;
 import com.silengzi.usercenter.service.UserService;
 import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.apache.commons.lang3.StringUtils;
@@ -199,7 +200,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      * @return
      */
     @Override
-    public List<User> userList(String username, int page, int size, HttpServletRequest request) {
+    public PageResult<User> userList(String username, int page, int size, HttpServletRequest request) {
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         if(StringUtils.isNotBlank(username)) {
             queryWrapper.like("username", username);
@@ -207,9 +208,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         // List<User> userlist = this.list(queryWrapper);
         IPage<User> pageParam = new Page<>(page, size);
         IPage<User> userIPage = this.page(pageParam, queryWrapper);
+        long total = userIPage.getTotal();
         List<User> userlist = userIPage.getRecords();
         List<User> safetyUserList = userlist.stream().map(item -> getSafetyUser(item)).collect(Collectors.toList());
-        return safetyUserList;
+        return new PageResult<User>(safetyUserList, total);
     }
 
     /**

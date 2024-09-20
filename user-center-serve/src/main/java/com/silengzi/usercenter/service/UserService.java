@@ -2,6 +2,7 @@ package com.silengzi.usercenter.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.silengzi.usercenter.model.domain.User;
+import com.silengzi.usercenter.model.result.PageResult;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -54,7 +55,7 @@ public interface UserService extends IService<User> {
      * @param request
      * @return  用户列表
      */
-    List<User> userList(String username, int page, int size, HttpServletRequest request);
+    PageResult<User> userList(String username, int page, int size, HttpServletRequest request);
 
     /**
      * 获取用户详情

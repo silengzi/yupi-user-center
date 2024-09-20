@@ -2,12 +2,26 @@
 /* eslint-disable */
 import { request } from '@umijs/max';
 
+// 定义相应拦截器
+const responseInterceptors = [
+  // 直接写一个 function，作为拦截器
+  (response: any) => {
+    // 不再需要异步处理读取返回体内容，可直接在data中读出，部分字段可在 config 中找到
+    const { data = {} as any, config } = response;
+    console.log("data, config", data, config)
+    // do something
+    return data
+  },
+]
+
 /** 获取当前的用户 GET /api/user/currentUser */
 export async function currentUser(options?: { [key: string]: any }) {
   // return request<{ data: API.CurrentUser; }>('/api/user/currentUser', {
+  
   return request<API.CurrentUser>('/api/user/currentUser', {
     method: 'GET',
     ...(options || {}),
+    responseInterceptors
   });
 }
 
@@ -17,6 +31,7 @@ export async function outLogin(options?: { [key: string]: any }) {
   return request<number>('/api/user/logout', {
     method: 'POST',
     ...(options || {}),
+    responseInterceptors
   });
 }
 
@@ -29,6 +44,7 @@ export async function login(body: API.LoginParams, options?: { [key: string]: an
     },
     data: body,
     ...(options || {}),
+    responseInterceptors
   });
 }
 
@@ -42,6 +58,7 @@ export async function register(body: API.RegisterParams, options?: { [key: strin
     },
     data: body,
     ...(options || {}),
+    responseInterceptors
   });
 }
 
@@ -50,6 +67,7 @@ export async function getNotices(options?: { [key: string]: any }) {
   return request<API.NoticeIconList>('/api/notices', {
     method: 'GET',
     ...(options || {}),
+    responseInterceptors
   });
 }
 
@@ -72,13 +90,15 @@ export async function userSearch(
       size: params.pageSize,
     },
     ...(options || {}),
+    responseInterceptors
   });
 
   const p = new Promise<API.UserList>(async (resolve, reject) => {
+    const data: any = await res
     resolve({
-      data: await res as any,
+      data: data.records,
       success: true,
-      total: 14
+      total: data.total
     })
   })
   return p
@@ -91,6 +111,7 @@ export async function userDetail(params: {id: number}, options?: { [key: string]
     method: 'GET',
     params,
     ...(options || {}),
+    responseInterceptors
   });
 }
 
@@ -102,6 +123,7 @@ export async function updateUser(options?: API.CurrentUser) {
       method: 'update',
       ...(options || {}),
     },
+    responseInterceptors
   });
 }
 
@@ -113,6 +135,7 @@ export async function addRule(options?: { [key: string]: any }) {
       method: 'post',
       ...(options || {}),
     },
+    responseInterceptors
   });
 }
 
@@ -122,7 +145,8 @@ export async function addRule(options?: { [key: string]: any }) {
 export async function deleteUser(ids?: { [key: string]: any }) {
   return request<number[]>('/api/user/delete', {
     method: 'POST',
-    data: ids
+    data: ids,
+    responseInterceptors
     // data: {
     //   method: 'post',
     //   ...(options || {}),
