@@ -210,7 +210,8 @@ const Login: React.FC = () => {
           }}
           logo={<img alt="logo" src="/logo.svg" />}
           title="用户管理中心"
-          subTitle={'一个经典美观的后台管理系统'}
+          subTitle={' '}
+          // subTitle={'一个经典美观的后台管理系统'}
           initialValues={{
             autoLogin: true,
           }}
@@ -373,6 +374,7 @@ const Login: React.FC = () => {
 
         <video
           src="https://gw.alipayobjects.com/v/huamei_gcee1x/afts/video/jXRBRK_VAwoAAAAAAAAAAAAAK4eUAQBr"
+          // src="/video_WebTitle_batch.mp4"
           controls={false}
           autoPlay
           playsInline
