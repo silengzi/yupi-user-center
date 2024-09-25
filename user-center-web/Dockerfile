@@ -1,20 +1,42 @@
 # 使用 Node.js 18 作为基础镜像
 FROM node:18
 
-# 将当前工作目录设置为/app
+# 将当前工作目录设置为/app/user-center
 WORKDIR /app/user-center
 
-# # 将 package.json 和 package-lock.json 复制到 /app 目录下
-# COPY package*.json ./
 
-# # 运行 npm install 安装依赖
-# RUN npm install
+# # 安装 git
+# RUN yum install -y git
 
-# # 将源代码复制到 /app 目录下
-# COPY . .
+# # 获取前端源代码到当前目录
+# RUN git clone --no-checkout https://github.com/silengzi/yupi-user-center.git
+# # 进入到项目根目录
+# RUN cd yupi-user-center
+# # 开启稀疏检出模式
+# RUN git sparse-checkout init --cone
+# # 设置要稀疏检出的目录
+# RUN git sparse-checkout user-center-web
+# # 检出文件
+# RUN git checkout main
+# # 回到项目根目录
+# RUN cd ..
+# # 移动 user-center-web 下面的所有文件到 Docker 的工作目录下
+# RUN mv yupi-user-center/user-center-web/* ./
+# # 删除 yupi-user-center 目录
+# RUN rm -rf yupi-user-center
 
-# # 打包构建
-# RUN npm run build
+
+# 将 package.json 和 package-lock.json 复制到 /app/user-center 目录下
+COPY package*.json ./
+
+# 运行 npm install 安装依赖
+RUN npm install
+
+# 将源代码复制到 /app/user-center 目录下
+COPY . .
+
+# 打包构建
+RUN npm run build
 
 # 将构建后的代码复制到 nginx 镜像中
 FROM nginx:latest
